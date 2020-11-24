@@ -22,3 +22,5 @@ def main():
     print('Read a new frame: ', hasFrames)
     count += 1
   return 0
+
+main()

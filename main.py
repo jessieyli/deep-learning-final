@@ -1,3 +1,4 @@
+import model
 
 def read_video(path):
     """
@@ -24,21 +25,24 @@ def train(videos):
     Creates and saves a VideoGAN model trained on the given dataset
     :param videos: Training videos of shape (num_videos, 64, 64, num_frames, 3)
     """
+    
 
-    #TO-DO: Adapt the below code for our purposes
-    '''
-    gan = GAN(discriminator=discriminator, generator=generator, latent_dim=latent_dim)
+    gan = VideoGAN(Generator(100), Discriminator(), 100)
     gan.compile(
-        d_optimizer=keras.optimizers.Adam(learning_rate=0.0003),
-        g_optimizer=keras.optimizers.Adam(learning_rate=0.0003),
-        loss_fn=keras.losses.BinaryCrossentropy(from_logits=True),
+        d_optimizer=keras.optimizers.Adam(learning_rate=0.003),
+        g_optimizer=keras.optimizers.Adam(learning_rate=0.003),
+        g_loss=g_minimax_loss,
+        d_loss=d_minimax_loss
     )
+    save_path = "./model_save1"
+    if not os.path.isdir(save_path):
+        os.mkdir(save_path)
+        os.mkdir(save_path + "/checkpoints")
+        os.mkdir(save_path + "/videos")     
+    
+    gan.fit(videos, epochs=1, batch_size=128, callbacks=[GANMonitor(save_path, write_video)])
+    return gan
 
-    gan.fit(
-        dataset, epochs=epochs, callbacks=[GANMonitor(num_img=3, latent_dim=latent_dim)]
-    )
-    '''
-    pass
 
 def generate_video(model):
     """
@@ -63,7 +67,8 @@ def write_video(video, path):
     pass
 
 def main():
-    pass
+    videos = read_videos("data/processed/giphydogs")
+    train(videos)
 
 
 if __name__ == '__main__':

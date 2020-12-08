@@ -1,5 +1,5 @@
 import model
-
+import tensorflow as tf
 def read_video(path):
     """
     Converts a series of saved frames at a directory to a tensor
@@ -68,6 +68,8 @@ def write_video(video, path):
 
 def main():
     videos = read_videos("data/processed/giphydogs")
+    print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+
     train(videos)
 
 

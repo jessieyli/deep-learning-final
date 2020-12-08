@@ -32,7 +32,7 @@ def video_to_frames(filepath, file_type, save_path):
     if file_type == "m2ts":
       image = image[:, :width//2, :]
     resize = cv2.resize(image, (64, 64))
-    cv2.imwrite(f'{save_path}/{filename}/frame{str(count)}.jpg', resize)  # save frame as JPEG file
+    cv2.imwrite(f'{save_path}/{filename}/frame{"{:03d}".format(count)}.jpg', resize)  # save frame as JPEG file
     hasFrames, image = vidcap.read()
     count += 1
   print(filepath + " processed")

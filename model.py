@@ -1,4 +1,3 @@
-
 import numpy as np
 import tensorflow as tf
 
@@ -96,7 +95,7 @@ class Generator(tf.keras.Model):
         Executes the generator model on the random noise vectors.
         
         :param z: latent representation, noise vector with shape (batch_size, 100)
-        :return: Generated video with shape (batch_size, 32, 64, 64, 3), i.e. batch_size x height x width x frames x color channels
+        :return: Generated video with shape (batch_size, 32, 64, 64, 3), i.e. batch_size x frames x height x width x color channels
         """
         # TO-DO: Implement two-stream fractionally-strided spatio-temporal convolutions with masking
         # mask selects either the foreground or background for each pixel location and time
@@ -183,7 +182,7 @@ class GANMonitor(tf.keras.callbacks.Callback):
         random_latent_vectors = tf.random.normal(shape=(5, self.model.latent_dim))
         generated_videos = self.model.generator(random_latent_vectors)
         for i, video in enumerate(generated_videos):
-            write_video(video, f"{save_path}/videos/{epoch}_video_{i}.png")
+            write_video(video, f"{save_path}/videos/{epoch}_video_{i}.mp4")
         self.model.save(save_path + "/checkpoints")
         
 
@@ -204,6 +203,7 @@ def d_wasserstein_loss(fake_preds, real_preds):
 def g_wasserstein_loss(fake_preds):
     return tf.reduce_sum(fake_preds)
 
+# generator shape testing CAN DELETE
 # batch_size = 10
 # z_input = np.random.normal(size=(batch_size, 100))
 # z = tf.convert_to_tensor(z_input)

@@ -12,12 +12,13 @@ def video_to_frames(filepath, file_type, save_path):
   vidcap = cv2.VideoCapture(filepath)
   # checks to make sure video is long enough for our purposes
   num_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
-  MIN_FRAMES = 96
+  MIN_FRAMES = 32
   if num_frames < MIN_FRAMES:
     print(f'Video is too short, has {num_frames} frames.')
     return
   
-  filename = ntpath.basename(filepath)
+  filename = os.path.splitext(ntpath.basename(filepath))[0]
+
   # creates folder for video's frames
   if not os.path.isdir(f'{save_path}/{filename}'):
       os.mkdir(f'{save_path}/{filename}')
@@ -27,12 +28,17 @@ def video_to_frames(filepath, file_type, save_path):
   hasFrames, image = vidcap.read()
   count = 0
   while hasFrames:
+    video_num = count//MIN_FRAMES
+    frame_num = count%MIN_FRAMES
+    # creates folder for video's frames
+    video_path = f'{save_path}/{filename}({video_num})'
+
     height, width, layers = image.shape
     # m2ts format weird, crop right half of image
     if file_type == "m2ts":
       image = image[:, :width//2, :]
     resize = cv2.resize(image, (64, 64))
-    cv2.imwrite(f'{save_path}/{filename}/frame{"{:03d}".format(count)}.jpg', resize)  # save frame as JPEG file
+    cv2.imwrite(f'{video_path}/frame{"{:03d}".format(frame_num)}.jpg', resize)  # save frame as JPEG file
     hasFrames, image = vidcap.read()
     count += 1
   print(filepath + " processed")

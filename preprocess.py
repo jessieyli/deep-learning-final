@@ -19,11 +19,6 @@ def video_to_frames(filepath, file_type, save_path):
   
   filename = os.path.splitext(ntpath.basename(filepath))[0]
 
-  # creates folder for video's frames
-  if not os.path.isdir(f'{save_path}/{filename}'):
-      os.mkdir(f'{save_path}/{filename}')
-  else:
-    return
 
   hasFrames, image = vidcap.read()
   count = 0
@@ -33,6 +28,8 @@ def video_to_frames(filepath, file_type, save_path):
     # creates folder for video's frames
     video_path = f'{save_path}/{filename}({video_num})'
 
+    if not os.path.isdir(video_path):
+      os.mkdir(video_path)
     height, width, layers = image.shape
     # m2ts format weird, crop right half of image
     if file_type == "m2ts":

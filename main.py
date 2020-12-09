@@ -22,13 +22,13 @@ def train(videos):
         g_loss=g_minimax_loss,
         d_loss=d_minimax_loss
     )
-    save_path = "./model_save1"
+    save_path = sys.argv[2]
     if not os.path.isdir(save_path):
         os.mkdir(save_path)
         os.mkdir(save_path + "/checkpoints/generator")
         os.mkdir(save_path + "/checkpoints/discriminator")
         os.mkdir(save_path + "/videos")     
-    gan.fit(videos, epochs=2, batch_size=8, callbacks=[GANMonitor(save_path)])
+    gan.fit(videos, epochs=25, batch_size=32, callbacks=[GANMonitor(save_path)])
     print(gan.generator.summary())
     print(gan.discriminator.summary())
 
@@ -58,7 +58,8 @@ def predict_video(model, seed_img):
 def main():
     # macOS hack
     os.environ['KMP_DUPLICATE_LIB_OK']='True'
-    videos = read_videos("data/processed/giphydogs_mini")
+    videos_path = sys.argv[1]
+    videos = read_videos(videos_path)
     print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
     train(videos)
     # train(videos)
@@ -74,4 +75,7 @@ def main():
     '''
 
 if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print("USAGE: python main.py <Videos Path> <Save Path>")
+        exit()
     main()

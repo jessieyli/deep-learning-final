@@ -6,7 +6,7 @@ from helpers import read_video, read_videos, write_video
 from model import VideoGAN, Generator, Discriminator, GANMonitor, g_minimax_loss, d_minimax_loss
 # import skvideo.io
 import numpy as np
-
+import sys
 
 def train(videos):
     """
@@ -25,9 +25,9 @@ def train(videos):
     save_path = sys.argv[2]
     if not os.path.isdir(save_path):
         os.mkdir(save_path)
-        os.mkdir(save_path + "/checkpoints/generator")
-        os.mkdir(save_path + "/checkpoints/discriminator")
-        os.mkdir(save_path + "/videos")     
+        os.makedirs(save_path + "/checkpoints/generator")
+        os.makedirs(save_path + "/checkpoints/discriminator")
+        os.makedirs(save_path + "/videos")  
     gan.fit(videos, epochs=25, batch_size=32, callbacks=[GANMonitor(save_path)])
     print(gan.generator.summary())
     print(gan.discriminator.summary())

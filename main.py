@@ -13,8 +13,9 @@ def train(videos):
     Creates and saves a VideoGAN model trained on the given dataset
     :param videos: Training videos of shape (num_videos, num_frames, 64, 64, 3)
     """
-    
-    videos = videos / 255 
+    videos = tf.cast(videos, tf.float32)
+    videos = (videos - 127.5) / 127.5 # normalize images to [-1,1]
+    # videos = videos / 255
     gan = VideoGAN(Generator(100), Discriminator(), 100)
     gan.compile(
         g_optimizer=tf.keras.optimizers.Adam(learning_rate=0.003),
@@ -28,7 +29,10 @@ def train(videos):
         os.makedirs(save_path + "/checkpoints/generator")
         os.makedirs(save_path + "/checkpoints/discriminator")
         os.makedirs(save_path + "/videos")  
-    gan.fit(videos, epochs=25, batch_size=32, callbacks=[GANMonitor(save_path)])
+
+    # gan.fit(videos, epochs=1000, batch_size=32, callbacks=[GANMonitor(save_path)])
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="./logs")
+    gan.fit(videos, epochs=100, batch_size=32, callbacks=[tensorboard_callback])
     print(gan.generator.summary())
     print(gan.discriminator.summary())
 

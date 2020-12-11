@@ -43,9 +43,9 @@ def write_video(video, path):
     print("SHAPE", video.shape)
     print(path)
     video = video.numpy()
-    video = video * 255
+    video = (video * 127.5) + 127.5
+    # video = video * 255
     video = video.astype('uint8')
-    # skvideo.io.vwrite(path, video) # absolutely whack color output
     # define codec
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(path,fourcc, 20.0, (64,64))

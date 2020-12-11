@@ -75,7 +75,11 @@ class Generator(tf.keras.Model):
         self.deconv4 = tf.keras.layers.Conv2DTranspose(64, kernel_size=(4, 4), strides=(2,2), padding='same', activation='relu')
         # 64x64x3
         self.deconv5 = tf.keras.layers.Conv2DTranspose(3, kernel_size=(4, 4), strides=(2,2), padding='same', activation='tanh')
-
+        
+        self.batchnorm1 = tf.keras.layers.BatchNormalization()
+        self.batchnorm2 = tf.keras.layers.BatchNormalization()
+        self.batchnorm3 = tf.keras.layers.BatchNormalization()
+        self.batchnorm4 = tf.keras.layers.BatchNormalization()
         # foreground stream 3D convolutions
         # [4x4x4] convolutions with a stride of 2 except for the first layer
         # 1x1x1x100 -> 4x4x2x512
@@ -89,9 +93,12 @@ class Generator(tf.keras.Model):
         # 64x64x32x3
         self.deconvfg5 = tf.keras.layers.Conv3DTranspose(3, kernel_size=(4, 4, 4), strides=(2,2,2), padding='same', activation='tanh')
         
+        self.batchnormf1 = tf.keras.layers.BatchNormalization()
+        self.batchnormf2 = tf.keras.layers.BatchNormalization()
+        self.batchnormf3 = tf.keras.layers.BatchNormalization()
+        self.batchnormf4 = tf.keras.layers.BatchNormalization()
         # generate mask with sigmoid function
         self.deconv_mask = tf.keras.layers.Conv3DTranspose(1, kernel_size=(4, 4, 4), strides=(2,2,2), padding='same', activation='sigmoid')
-
 
     def call(self, z):
         """
@@ -113,9 +120,13 @@ class Generator(tf.keras.Model):
         #z_bg = tf.reshape(z, [batch_size, 1, 1, self.z_dim])
         z_bg = z
         dc1 = self.deconv1(z_bg) # [bs, 4, 4, 512]
+        dc1 = self.batchnorm1(dc1)
         dc2 = self.deconv2(dc1) # [bs, 8, 8, 256]
+        dc2 = self.batchnorm2(dc2)
         dc3 = self.deconv3(dc2)
+        dc3 = self.batchnorm3(dc3)
         dc4 = self.deconv4(dc3)
+        dc4 = self.batchnorm4(dc4)
         dc5 = self.deconv5(dc4)
         background = dc5 # [bs, 64, 64, 3]
 
@@ -123,9 +134,13 @@ class Generator(tf.keras.Model):
         # create foreground stream
         z_fg = z #tf.reshape(z, [batch_size, 1, 1, 1, self.z_dim])
         dc_fg1 = self.deconvfg1(z_fg) # [bs, 2, 4, 4, 512]
+        dc_fg1 = self.batchnormf1(dc_fg1)
         dc_fg2 = self.deconvfg2(dc_fg1)
+        dc_fg2 = self.batchnormf2(dc_fg2)
         dc_fg3 = self.deconvfg3(dc_fg2)
+        dc_fg3 = self.batchnormf3(dc_fg3)
         dc_fg4 = self.deconvfg4(dc_fg3)
+        dc_fg4 = self.batchnormf4(dc_fg4)
         dc_fg5 = self.deconvfg5(dc_fg4)
         foreground = dc_fg5 # [bs, 32, 64, 64, 3]
 
@@ -151,15 +166,22 @@ class Discriminator(tf.keras.Model):
         """
         super(Discriminator, self).__init__()
         # 64 x 64 x 32 -> 32 x 32 x 16
-        self.conv1 = tf.keras.layers.Conv3D(64, (4, 4, 4), (2, 2, 2), padding='same', activation='relu')
+        self.conv1 = tf.keras.layers.Conv3D(64, (4, 4, 4), (2, 2, 2), padding='same')
         # 32 x 32 x 16 -> 16 x 16 x 8
-        self.conv2 = tf.keras.layers.Conv3D(128, (4, 4, 4), (2, 2, 2), padding='same', activation='relu')
+        self.conv2 = tf.keras.layers.Conv3D(128, (4, 4, 4), (2, 2, 2), padding='same')
         # 16 x 16 x 8 -> 8 x 8 x 4
-        self.conv3 = tf.keras.layers.Conv3D(256, (4, 4, 4), (2, 2, 2), padding='same', activation='relu')
+        self.conv3 = tf.keras.layers.Conv3D(256, (4, 4, 4), (2, 2, 2), padding='same')
         # 8 x 8 x 4 -> 4 x 4 x 2
-        self.conv4 = tf.keras.layers.Conv3D(512, (4, 4, 4), (2, 2, 2), padding='same', activation='relu')
+        self.conv4 = tf.keras.layers.Conv3D(512, (4, 4, 4), (2, 2, 2), padding='same')
         # 4 x 4 x 2 -> 1 x 1 x 1
         self.conv5 = tf.keras.layers.Conv3D(1, (2, 4, 4), (1, 1, 1), padding='valid')
+        self.lrelu1 = tf.keras.layers.LeakyReLU(alpha=0.2)
+        self.lrelu2 = tf.keras.layers.LeakyReLU(alpha=0.2)
+        self.lrelu3 = tf.keras.layers.LeakyReLU(alpha=0.2)
+        self.lrelu4 = tf.keras.layers.LeakyReLU(alpha=0.2)
+        self.batchnormb1 = tf.keras.layers.BatchNormalization()
+        self.batchnormb2 = tf.keras.layers.BatchNormalization()
+        self.batchnormb3 = tf.keras.layers.BatchNormalization()
 
     def call(self, inputs):
         """
@@ -170,9 +192,13 @@ class Discriminator(tf.keras.Model):
         """        
         #TO-DO: Implement 5-layer spatio-temporal convolutional network with 4x4x4 kernels, with last layer being Dense(1, activation=sigmoid)
         c1 = self.conv1(inputs)
+        c1 = self.lrelu1(c1)
         c2 = self.conv2(c1)
+        c2 = self.lrelu2(self.batchnormb1(c2))
         c3 = self.conv3(c2)
+        c3 = self.lrelu3(self.batchnormb2(c3))
         c4 = self.conv4(c3)
+        c4 = self.lrelu4(self.batchnormb3(c4))
         c5 = self.conv5(c4)
         logits = tf.reshape(c5, [-1, 1])
         probs = tf.nn.sigmoid(logits)
@@ -189,7 +215,7 @@ class GANMonitor(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         print(f'Epoch {epoch} completed')
         random_latent_vectors = tf.random.normal(shape=[5, self.model.latent_dim])
-        generated_videos = self.model.generator(random_latent_vectors)
+        generated_videos = self.model.generator(random_latent_vectors, training=False)
         for i, video in enumerate(generated_videos):
             write_video(video, f"{self.save_path}/videos/{epoch}_video_{i}.mp4")
         self.model.generator.save(self.save_path + "/checkpoints" + "/generator")
@@ -218,8 +244,8 @@ def g_wasserstein_loss(fake_preds):
     return tf.reduce_sum(fake_preds)
 
 # generator shape testing CAN DELETE
-# batch_size = 10
-# z_input = np.random.normal(size=(batch_size, 100))
-# z = tf.convert_to_tensor(z_input)
-# gen = Generator(100)
-# gen.call(z)
+# batch_size = 1
+# z_input = tf.random.normal(shape=[batch_size, 100])
+# generated_videos = Generator(100).call(z_input)
+# for i, video in enumerate(generated_videos):
+#     write_video(video, f"videos/video_{i}.mp4")

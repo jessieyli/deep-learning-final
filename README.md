@@ -5,10 +5,14 @@ Packages:
 * NumPy
 * cv2
 
-Colab Link:
-https://colab.research.google.com/drive/1fw6hYi6ZqxWlQRAWs347gOP__nzVphUm?usp=sharing
+[Colab Link](https://colab.research.google.com/drive/1fw6hYi6ZqxWlQRAWs347gOP__nzVphUm?usp=sharing)
 
-Results on training on the MPII Cooking Activities Dataset from https://www.mpi-inf.mpg.de/departments/computer-vision-and-machine-learning/research/human-activity-recognition/mpii-cooking-activities-dataset with a learning rate of 0.0003 and 1000 iterations.
+Poster:
+<img src='poster_board.jpg'>
+
+[Devpost](https://devpost.com/software/video-clip-generation-from-a-still-image)
+
+Results from training on the MPII Cooking Activities Dataset from https://www.mpi-inf.mpg.de/departments/computer-vision-and-machine-learning/research/human-activity-recognition/mpii-cooking-activities-dataset with a learning rate of 0.0003 and 1000 iterations.
 
 <table><tr><td>
 <strong>Original video</strong><br>
